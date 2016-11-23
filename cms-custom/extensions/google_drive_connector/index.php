@@ -22,26 +22,37 @@ class PikaDrive {
   private $token;
 
   function __construct($username = null){
+	   global $apiConfig;
     $this->gClient = new Google_Client();
     $this->gClient->setClientId(CLIENT_ID);
     $this->gClient->setClientSecret(CLIENT_SECRET);
-    $this->gClient->setRedirectUri(URL);
+    $this->gClient->setRedirectUri(REDIRECT_URL);
     $this->gClient->setScopes(array('https://www.googleapis.com/auth/drive'));
 
     if($username != null && self::setToken($username)){
-      self::authenticate();
+		//echo 'dhaval';
+     self::authenticate();
     }
+	
   }
 
   function setToken($username, $token = ''){
-	$clean_token = mysql_real_escape_string($token);
-	$clean_username = mysql_real_escape_string($username);
+	
+	error_reporting(E_ALL);
+ini_set('display_errors', 'On');
+	$clean_token = $token;
+	$clean_username = $username;
 	
     if(isset($token) && !empty($token)){
+		//echo $t;
+		
       $this->token = $this->gClient->authenticate($token);
-      $result = mysql_query("UPDATE users SET google_drive_token='{$clean_token}' WHERE username='{$clean_username}'");
+      $result = mysql_query("UPDATE users SET google_drive_token='".$this->token."' WHERE username='".$clean_username."'");
+	  //echo 'dhavl';exit;
+	  
     }else{
-      $result = mysql_query("SELECT google_drive_token FROM users WHERE username='{$clean_username}'");
+		
+      $result = mysql_query("SELECT google_drive_token FROM users WHERE username='".$clean_username."'");
       $row = mysql_fetch_assoc($result);
       $this->token = $row['google_drive_token'];
       return true;
@@ -52,13 +63,17 @@ class PikaDrive {
 
   function unauthorize($username){
 	$clean_username = mysql_real_escape_string($username);
-    $result = mysql_query("UPDATE users SET google_drive_token=NULL WHERE username='{$clean_username}'");
+    $result = mysql_query("UPDATE users SET google_drive_token=NULL WHERE username='".$clean_username."'");
   }
 
   function authenticate(){
+
     if (!isset($this->token)) {
+		//echo $this->token.'dhaval';
       $this->gClient->authenticate();
     } else {
+		//echo 'dha';
+		
       $this->gClient->setAccessToken($this->token);
     }
   }
@@ -134,7 +149,7 @@ class PikaDrive {
   
   function isAuthenticated($username){
 	$clean_username = mysql_real_escape_string($username);
-    $result = mysql_query("SELECT google_drive_token FROM users WHERE username='{$clean_username}' AND google_drive_token IS NOT NULL");
+    $result = mysql_query("SELECT google_drive_token FROM users WHERE username='".$clean_username."' AND google_drive_token IS NOT NULL");
     
     if (mysql_num_rows($result) == 1)
     {
