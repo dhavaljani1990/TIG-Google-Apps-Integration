@@ -66,17 +66,20 @@ class Google_OAuth2 extends Google_Auth {
       $this->clientSecret = $apiConfig['oauth2_client_secret'];
     }
 
-    if (! empty($apiConfig['oauth2_redirect_uri'])) {
-      $this->redirectUri = $apiConfig['oauth2_redirect_uri'];
-    }
-    
+   
     if (! empty($apiConfig['oauth2_access_type'])) {
-      $this->accessType = $apiConfig['oauth2_access_type'];
+      //$this->accessType =/$apiConfig['oauth2_access_type'];
+      $this->accessType = 'offline';
     }
 
     if (! empty($apiConfig['oauth2_approval_prompt'])) {
       $this->approvalPrompt = $apiConfig['oauth2_approval_prompt'];
     }
+	
+	 if (! empty($apiConfig['oauth2_redirect_uri'])) {
+      $this->redirectUri = $apiConfig['oauth2_redirect_uri'];
+    }
+    
   }
 
   /**
@@ -86,11 +89,14 @@ class Google_OAuth2 extends Google_Auth {
    * @return string
    */
   public function authenticate($service, $code = null) {
+	
     if (!$code && isset($_GET['code'])) {
       $code = $_GET['code'];
     }
+//echo 'yes.test';
 
     if ($code) {
+		
       // We got here from the redirect from a successful authorization grant, fetch the access token
       $request = Google_Client::$io->makeRequest(new Google_HttpRequest(self::OAUTH2_TOKEN_URI, 'POST', array(), array(
           'code' => $code,
@@ -99,12 +105,16 @@ class Google_OAuth2 extends Google_Auth {
           'client_id' => $this->clientId,
           'client_secret' => $this->clientSecret
       )));
+	 
 
       if ($request->getResponseHttpCode() == 200) {
+		   
         $this->setAccessToken($request->getResponseBody());
         $this->token['created'] = time();
         return $this->getAccessToken();
+		//exit;
       } else {
+		  
         $response = $request->getResponseBody();
         $decodedResponse = json_decode($response, true);
         if ($decodedResponse != null && $decodedResponse['error']) {
@@ -112,8 +122,10 @@ class Google_OAuth2 extends Google_Auth {
         }
         throw new Google_AuthException("Error fetching OAuth2 access token, message: '$response'", $request->getResponseHttpCode());
       }
+	  
     }
 
+	
     $authUrl = $this->createAuthUrl($service['scope']);
     header('Location: ' . $authUrl);
     return true;
@@ -127,6 +139,7 @@ class Google_OAuth2 extends Google_Auth {
    * @return string
    */
   public function createAuthUrl($scope) {
+	
     $params = array(
         'response_type=code',
         'redirect_uri=' . urlencode($this->redirectUri),
@@ -171,7 +184,7 @@ class Google_OAuth2 extends Google_Auth {
   }
 
   public function setAccessType($accessType) {
-    $this->accessType = $accessType;
+    $this->accessType = 'offline';
   }
 
   public function setApprovalPrompt($approvalPrompt) {

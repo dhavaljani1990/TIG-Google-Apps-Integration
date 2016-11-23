@@ -14,6 +14,7 @@ else if (array_key_exists(action, $_GET))
 {
 	if ($_GET['action'] == 'authenticate')
 	{
+		
 		$rest->authenticate();
 	}
 	
