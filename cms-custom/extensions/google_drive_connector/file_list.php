@@ -95,14 +95,18 @@ function file_list($folder_id = null, $prev_folder_id, $root_folder_id, $args = 
 	
 	if ($google_drive_mode)
 	{
+		
 		$auth_row = pikaAuth::getInstance()->getAuthRow();
+		
 		// I don't have permission to edit pikaDrive on dev server at the moment, this
 		// is a work around.
 		//if (pikaDrive::isAuthenticated($auth_row["username"]))
+			
 		if (file_exists(getcwd() . '-custom/extensions/google_drive_connector/tokens/' . $auth_row['username']))
 		{			
 			if ($folder_id != $root_folder_id)
 			{	
+		
 				$file_list_output .= "<a class=\"btn btn-primary\" id=\"{$prev_folder_id}\"><i class=\"icon-arrow-up icon-white\"></i> Up one folder</a>";
 				$file_list_output .= '
 										<script>
@@ -118,9 +122,10 @@ function file_list($folder_id = null, $prev_folder_id, $root_folder_id, $args = 
 			}
 			
 			$pika = new PikaDrive($auth_row["username"]);
+			
 			$filez = $pika->listFiles($folder_id);
 			$docs_array = array();
-			//var_dump($filez); exit();
+			
 			
 			foreach ($filez as $f)
 			{
@@ -152,6 +157,7 @@ function file_list($folder_id = null, $prev_folder_id, $root_folder_id, $args = 
 	else 
 	{
 		$docs_array = pikaDocument::getFiles($folder_id,$temp_args['doc_type'],$id);
+		
 	}
 	
 	$docs = $doc_types = array();
