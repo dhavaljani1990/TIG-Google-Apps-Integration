@@ -11,6 +11,7 @@ function folder_search_or_create($folder_name, $parent_id)
 {
 	$auth_row = pikaAuth::getInstance()->getAuthRow();
 	$drive = new PikaDrive($auth_row['username']);
+	$_SESSION['username']=$auth_row['username'];
 	$sub_folders = $drive->listFiles($parent_id);
 	
 	foreach ($sub_folders as $sub_folder)
